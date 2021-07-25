@@ -1,0 +1,33 @@
+#!/usr/bin/env node
+'use strict';
+ 
+const { ArgumentParser } = require('argparse');
+const { exec_input_transaction_graph } = require("./src/input-transaction-graph.js");
+
+// create main parser
+const parser = new ArgumentParser({
+  prog: "bitcoin-graph-extractor",
+  description: "CLI tool to extract csv with graphs edges and nodes from Bitcoin core clients."
+});
+ 
+// for all subcommands
+const subcommands = parser.add_subparsers({});
+
+const input_transaction_graph = subcommands.add_parser("input_transaction_graph",{help:"Follows inputs from a transaction to build a top-down transaction graph."});
+input_transaction_graph.add_argument("-b", "--bitcoin-hosts", { help: "Comma separated list of HOST:PORT to reach bitcoin core clients rpc api.", default: "127.0.0.1"});
+input_transaction_graph.add_argument("-d", "--depth", { help: "The maximum depth to look at (warning: tx count will grow exponentially as you increase it).", default: "5"});
+input_transaction_graph.add_argument("-c", "--concurrency", { help: "The maximum number of concurrent HTTP requests to have in threadpool at any time.", default: "5"});
+input_transaction_graph.add_argument("-t", "--transaction", { help: "The transaction hash in hexa without the 0x prefix.", required: true});
+input_transaction_graph.add_argument("-l", "--login", { help: "BTC RPC API Login.", required: true});
+input_transaction_graph.add_argument("-n", "--node-output", { help: "File to dump the nodes in.", default: "exported_nodes.csv"});
+input_transaction_graph.add_argument("-e", "--edge-output", { help: "File to dump the edges in.", default: "exported_edges.csv"});
+input_transaction_graph.add_argument("-p", "--password", { help: "BTC RPC API Password.", required: true});
+input_transaction_graph.set_defaults({func: exec_input_transaction_graph});
+
+// display the arguments parsed
+let argsParsed = parser.parse_args();
+if(typeof argsParsed.func == 'function') {
+  argsParsed.func(argsParsed);
+} else {
+  console.log("Nothing to do");
+}
