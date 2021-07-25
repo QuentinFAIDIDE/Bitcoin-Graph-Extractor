@@ -136,7 +136,7 @@ function exec_input_transaction_graph(args) {
                             }
                         }
                         // write a new edge
-                        ioFunctions.writeEdge(hashIdMap[neighbours[j].hash], sourceTxId, null, neighbours[j].value);
+                        ioFunctions.writeEdge(hashIdMap[neighbours[j].hash], sourceTxId, neighbours[j].address, neighbours[j].value);
                     }
                     // increase counter
                     txInputsFound++;

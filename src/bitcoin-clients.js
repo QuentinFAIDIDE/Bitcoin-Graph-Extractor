@@ -190,8 +190,11 @@ function get_tx(tx_hash, nout=null) {
                 return;
             // if nout is set
             } else {
-                // return the output value
-                resolve(tx_cache[tx_hash].vout[nout].value);
+                // return the output value and address
+                resolve({
+                    "value": tx_cache[tx_hash].vout[nout].value,
+                    "address": tx_cache[tx_hash].vout[nout].scriptPubKey.addresses[0]
+                });
                 return;
             }
         // if tx is not in cache
@@ -207,8 +210,11 @@ function get_tx(tx_hash, nout=null) {
                     return;
                 // if nout is set
                 } else {
-                    // return the output value
-                    resolve(tx_cache[tx_hash].vout[nout].value);
+                    // return the output value and address
+                    resolve({
+                        "value":tx_cache[tx_hash].vout[nout].value,
+                        "address": tx_cache[tx_hash].vout[nout].scriptPubKey.addresses[0]
+                    });
                     return;
                 }
             });
@@ -231,10 +237,11 @@ function get_tx_inputs(hash) {
                     }
                 // if it's a normal tx, we get it and save values
                 } else {
-                    get_tx(target_tx.vin[i].txid, target_tx.vin[i].vout).then((value)=>{
+                    get_tx(target_tx.vin[i].txid, target_tx.vin[i].vout).then((txinf)=>{
                         inputs.push({
-                            "value": value,
-                            "hash": target_tx.vin[i].txid
+                            "value": txinf.value,
+                            "hash": target_tx.vin[i].txid,
+                            "address":  txinf.address
                         });
                         txFounds++;
                         if(txFounds>=target_tx.vin.length) {
