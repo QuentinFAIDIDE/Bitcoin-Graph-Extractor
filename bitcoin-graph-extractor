@@ -1,13 +1,13 @@
 #!/usr/bin/env node
-'use strict';
+"use strict";
  
-const { ArgumentParser } = require('argparse');
+const { ArgumentParser } = require("argparse");
 const { exec_input_transaction_graph } = require("./src/input-transaction-graph.js");
 
 // create main parser
 const parser = new ArgumentParser({
-  prog: "bitcoin-graph-extractor",
-  description: "CLI tool to extract csv with graphs edges and nodes from Bitcoin core clients."
+    prog: "bitcoin-graph-extractor",
+    description: "CLI tool to extract csv with graphs edges and nodes from Bitcoin core clients."
 });
  
 // for all subcommands
@@ -26,8 +26,8 @@ input_transaction_graph.set_defaults({func: exec_input_transaction_graph});
 
 // display the arguments parsed
 let argsParsed = parser.parse_args();
-if(typeof argsParsed.func == 'function') {
-  argsParsed.func(argsParsed);
+if(typeof argsParsed.func == "function") {
+    argsParsed.func(argsParsed);
 } else {
-  console.log("Nothing to do");
+    console.log("Nothing to do");
 }

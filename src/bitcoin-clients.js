@@ -1,5 +1,5 @@
 let request = require("request");
-var cq = require('concurrent-queue');
+var cq = require("concurrent-queue");
 
 // default RPC client port
 let DEFAULT_BTC_RPC_PORT = 8332;
@@ -67,49 +67,49 @@ function set_clients(clients) {
 
 function get_and_cache_tx(hash) {
     return new Promise((resolve,reject)=>{
-            // start a request to the rpc api
-            var dataString = JSON.stringify({
-                "jsonrpc": "1.0",
-                "id": "curltext",
-                "method": "getrawtransaction",
-                "params": [hash, true]
-            });
+        // start a request to the rpc api
+        var dataString = JSON.stringify({
+            "jsonrpc": "1.0",
+            "id": "curltext",
+            "method": "getrawtransaction",
+            "params": [hash, true]
+        });
             // get the client infos to reach
-            let client =  next_crypto_client(btc_clients);
-            // build the REST request
-            var options = {
-                url: `http://${btc_clients.login}:${btc_clients.password}@${client}/`,
-                method: "POST",
-                headers: {"content-type": "text/plain;"},
-                body: dataString
-            };
+        let client =  next_crypto_client(btc_clients);
+        // build the REST request
+        var options = {
+            url: `http://${btc_clients.login}:${btc_clients.password}@${client}/`,
+            method: "POST",
+            headers: {"content-type": "text/plain;"},
+            body: dataString
+        };
 
-            request(options, (error, response, body)=>{
+        request(options, (error, response, body)=>{
 
-                // if errors, exit and print it
-                if(error) {
-                    reject(err);
-                    return;
-                }
-                if(response.statusCode!=200) {
-                    console.error("BTC Client error with code on get_tx:"+response.statusCode);
-                    console.error(JSON.parse(body).error.message);
-                    reject(new Error("Unexpected bitcoin client status code: "+response.statusCode));
-                    return;
-                }
-                // we parse the json and return it while handling errors
-                let obj;
-                try {
-                    obj = JSON.parse(body);
-                } catch(parseErr) {
-                    console.error("Invalid JSON returned by Bitcoin RPC Api");
-                    reject(parseErr);
-                    return;
-                }
-                // save it in cache
-                tx_cache[hash]=obj.result;
-                resolve();
-            });
+            // if errors, exit and print it
+            if(error) {
+                reject(error);
+                return;
+            }
+            if(response.statusCode!=200) {
+                console.error("BTC Client error with code on get_tx:"+response.statusCode);
+                console.error(JSON.parse(body).error.message);
+                reject(new Error("Unexpected bitcoin client status code: "+response.statusCode));
+                return;
+            }
+            // we parse the json and return it while handling errors
+            let obj;
+            try {
+                obj = JSON.parse(body);
+            } catch(parseErr) {
+                console.error("Invalid JSON returned by Bitcoin RPC Api");
+                reject(parseErr);
+                return;
+            }
+            // save it in cache
+            tx_cache[hash]=obj.result;
+            resolve();
+        });
     });
 }
 
@@ -130,7 +130,7 @@ function get_block(hash) {
     return new Promise((resolve,reject)=>{
 
         // if the block is already queried previously
-        if(blocks_cache.hasOwnProperty(hash)==false) {
+        if(Object.prototype.hasOwnProperty.call(blocks_cache, hash)==false) {
             // build RPC request to bitcoin rpc api
             var dataString = JSON.stringify({
                 "jsonrpc": "1.0",
@@ -149,7 +149,7 @@ function get_block(hash) {
             };
             request(options, (error, response, body)=>{
                 if(error) {
-                    reject(err);
+                    reject(error);
                     return;
                 }
                 if(response.statusCode!=200) {
@@ -182,7 +182,7 @@ function get_block(hash) {
 function get_tx(tx_hash, nout=null) {
     return new Promise((resolve,reject)=>{
         // if tx is in cache
-        if(tx_cache.hasOwnProperty(tx_hash)==true) {
+        if(Object.prototype.hasOwnProperty.call(tx_cache, tx_hash)==true) {
             // if nout is unset
             if(nout==null) {
                 // return it
