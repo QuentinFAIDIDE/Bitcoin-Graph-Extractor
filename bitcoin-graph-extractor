@@ -19,6 +19,7 @@ input_transaction_graph.add_argument("-d", "--depth", { help: "The maximum depth
 input_transaction_graph.add_argument("-c", "--concurrency", { help: "The maximum number of concurrent HTTP requests to have in threadpool at any time.", default: "18"});
 input_transaction_graph.add_argument("-t", "--transaction", { help: "The transaction hash in hexa without the 0x prefix.", required: true});
 input_transaction_graph.add_argument("-l", "--login", { help: "BTC RPC API Login.", required: true});
+input_transaction_graph.add_argument("-m", "--max-degree", { help: "Do not search nodes that have this degree of higher."});
 input_transaction_graph.add_argument("-n", "--node-output", { help: "File to dump the nodes in.", default: "exported_nodes.csv"});
 input_transaction_graph.add_argument("-e", "--edge-output", { help: "File to dump the edges in.", default: "exported_edges.csv"});
 input_transaction_graph.add_argument("-p", "--password", { help: "BTC RPC API Password.", required: true});

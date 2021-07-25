@@ -5,6 +5,8 @@ var {
     set_clients
 } = require("./bitcoin-clients.js");
 
+const ora = require("ora");
+
 var {initialize_graph_csvs} = require("./csv-writer.js");
 
 function exec_input_transaction_graph(args) {
@@ -23,11 +25,31 @@ function exec_input_transaction_graph(args) {
         process.exit(1);
     }
 
+    let max_degree = 0;
+    if(Object.prototype.hasOwnProperty.call(args, "max_degree")==true) {
+        // check max_degree format
+        if(Number.isNaN(Number(args.max_degree))==true || Number(args.max_degree)<3) {
+            console.error("Invalid max_degree");
+            process.exit(1);
+        }
+        max_degree = args.max_degree;
+    }
+
     // set the max concurrency for the btc client request
     set_btc_client_max_concurrency(args.concurrency);
 
+    // spinner widget for logs
+    const spinnerStreams = ora({
+        text:"Initializing steams...",
+        stream: process.stdout
+    }).start();
+    spinnerStreams.color = "red";
+
     // prepare the csv wriing functions
     initialize_graph_csvs(args.node_output, args.edge_output).then((ioFunctions)=>{
+
+        // change spinner
+        spinnerStreams.succeed();
 
         // ioFunctions has function members:
         // writeNode, writeEdge, doneWriting
@@ -53,10 +75,19 @@ function exec_input_transaction_graph(args) {
         
         let depthCallback = ()=>{
             depth++;
+
+            // spinner widget for logs
+            const spinnerDepth = ora({
+                text:"Extracting depth 1 with 0 transactions",
+                stream: process.stdout
+            }).start();
+            spinnerDepth.color = "blue";
+
             // if we are done, (max depth is our limit)
             if(depth>args.depth) {
                 // end the csv streams
                 ioFunctions.doneWriting();
+                spinnerDepth.succeed();
                 // and exit the program
                 console.log("The transactions have been written.");
                 process.exit(0);
@@ -71,6 +102,9 @@ function exec_input_transaction_graph(args) {
                 // get its neightbors (inputs here)
                 get_tx_inputs(depth_txhashes[depth-1][i]).then((neighbours)=>{
 
+                    // update spinner text
+                    spinnerDepth.text = "Extracting depth "+depth+" with "+txInputsFound+"/"+txInputsToFind+" transactions";
+
                     // id of the source tx (should always be set)
                     let sourceTxId = hashIdMap[depth_txhashes[depth-1][i]];
                     // if no neighbours (only tx is coinbase?)
@@ -80,6 +114,7 @@ function exec_input_transaction_graph(args) {
                         // if we are done finding neighbours for this tx
                         if(txInputsFound>=txInputsToFind) {
                             // iterate to next depth
+                            spinnerDepth.succeed();
                             depthCallback();
                             return;
                         }
@@ -95,7 +130,10 @@ function exec_input_transaction_graph(args) {
                             hashIdMap[neighbours[j].hash] = lastIdUsed;
                             // write the node
                             ioFunctions.writeNode(lastIdUsed,neighbours[j].hash);
-                            depth_txhashes[depth].push(neighbours[j].hash);
+                            // if max_degree is disabled or if we have reached it
+                            if(max_degree==0 || neighbours.length<=max_degree) {
+                                depth_txhashes[depth].push(neighbours[j].hash);
+                            }
                         }
                         // write a new edge
                         ioFunctions.writeEdge(hashIdMap[neighbours[j].hash], sourceTxId, null, neighbours[j].value);
@@ -105,6 +143,7 @@ function exec_input_transaction_graph(args) {
                     // if we are done finding neighbours for this tx
                     if(txInputsFound>=txInputsToFind) {
                         // iterate to next depth
+                        spinnerDepth.succeed();
                         depthCallback();
                         return;
                     }
