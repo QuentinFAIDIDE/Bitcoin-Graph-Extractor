@@ -71,7 +71,7 @@ function exec_input_transaction_graph(args) {
         let lastIdUsed=0;
 
         // write the first node
-        ioFunctions.writeNode(0, args.transaction);
+        ioFunctions.writeNode(0, args.transaction, "Source");
         
         let depthCallback = ()=>{
             depth++;
@@ -128,12 +128,19 @@ function exec_input_transaction_graph(args) {
                             // get it a new id
                             lastIdUsed++;
                             hashIdMap[neighbours[j].hash] = lastIdUsed;
-                            // write the node
-                            ioFunctions.writeNode(lastIdUsed,neighbours[j].hash);
+                            // define the type of node
+                            let group = "Pruned";
                             // if max_degree is disabled or if we have reached it
                             if(max_degree==0 || neighbours.length<=max_degree) {
                                 depth_txhashes[depth].push(neighbours[j].hash);
+                                group = "Neutral";
                             }
+                            // if this is the last depth, the group is "End"
+                            if(depth+1>args.depth) {
+                                group = "End";
+                            }
+                            // write the node
+                            ioFunctions.writeNode(lastIdUsed,neighbours[j].hash, group);
                         }
                         // write a new edge
                         ioFunctions.writeEdge(hashIdMap[neighbours[j].hash], sourceTxId, neighbours[j].address, neighbours[j].value);

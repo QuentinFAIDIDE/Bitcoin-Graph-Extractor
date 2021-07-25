@@ -10,7 +10,7 @@ function initialize_graph_csvs(node_file, edge_file) {
         var nodeWriteStream = fs.createWriteStream(node_file);
         var edgeWriteStream = fs.createWriteStream(edge_file);
 
-        var nodeStream = format({ headers: ["Id", "Label"] });
+        var nodeStream = format({ headers: ["Id", "Label", "Group"] });
         nodeStream.pipe(nodeWriteStream);
 
         var edgeStream = format({ headers: ["Source", "Target", "Label", "Weight"] }); 
@@ -18,8 +18,8 @@ function initialize_graph_csvs(node_file, edge_file) {
 
         // create callbacks to return
         resolve( {
-            "writeNode": (id, label)=>{
-                nodeStream.write([id,label]);
+            "writeNode": (id, label, group)=>{
+                nodeStream.write([id,label,group]);
             },
             "writeEdge": (source, target, label, weight)=>{
                 edgeStream.write([source, target, label, weight]);
