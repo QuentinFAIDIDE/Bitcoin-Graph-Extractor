@@ -30,19 +30,12 @@ install_libs:
 lint:
   stage: lint
   script:
-    - node_modules/eslint/bin/eslint.js routes/*.js app.js
+    - node_modules/eslint/bin/eslint.js src/*.js bitcoin-graph-extractor
 
 test:
   stage: test
   script:
-    - export CASSANDRA_HOST="aglagla"
-    - export CASSANDRA_PORT="obloblo"
-    - export CASSANDRA_DATACENTER="kek"
-    - export CASSANDRA_CRYPTO_DATA_KEYSPACE="jej"
-    - export TEST_MODE="true"
-    - export REPORT_SERVICE_URL="none"
-    - node app.js &
-    - sleep 2 && npm test
+    - npm test
 
 release:
   image: node:13
