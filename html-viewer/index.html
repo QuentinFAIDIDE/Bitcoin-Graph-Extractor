@@ -93,7 +93,7 @@
         },
         edges: {
           width: 0.15,
-          arrows: "to;from",
+          arrows: "to",
           color: { inherit: "from" },
           smooth: {
             type: "continuous",
@@ -113,7 +113,6 @@
         },
       };
 
-      // Note: data is coming from ./datasources/WorldCup2014.js
       network = new vis.Network(container, data, options);
     }
 
