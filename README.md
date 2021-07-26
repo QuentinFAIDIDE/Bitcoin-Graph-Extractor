@@ -1,7 +1,7 @@
 # Bitcoin Graph Extractor
 Nodejs script to extract a few transactions into csv with nodes and edges from Bitcoin Core rpc api. Recently added a dashboard to explore the data interractively in your web browser.
 
-![alt text](https://github.com/QuentinFAIDIDE/Bitcoin-Graph-Extractor/tree/master/html-viewer?raw=true)
+![alt text](https://github.com/QuentinFAIDIDE/Bitcoin-Graph-Extractor/tree/master/html-viewer/app.jpg?raw=true)
 
 ## Scalability
 This was not meant for huge datasets, but rather as a way to get a quick visualization into Gephi from the Bitcoin Core client. The Bitcoin client has a maximum queue limit for concurrent request and has poor performances whenever we use the getrawtransaction command. If you are looking into exporting larger dataset, consider using a distributed ETL that get whole blocks into a database.
