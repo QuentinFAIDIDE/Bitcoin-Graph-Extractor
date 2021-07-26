@@ -77,10 +77,10 @@ function exec_input_transaction_graph(args) {
             depth++;
 
             // if we are done, (max depth is our limit)
-            if(depth>args.depth) {
+            if(depth>Number(args.depth)) {
                 // end the csv streams
                 ioFunctions.doneWriting(args.webapp_view).then(()=>{
-                    process.exit(0);
+                    //
                 }).catch((err)=>{
                     console.error("Error while trying to copy csv and start webapp.");
                     console.error(err);
@@ -89,9 +89,10 @@ function exec_input_transaction_graph(args) {
                 return;
             }
 
-            // spinner widget for logs
-            const spinnerDepth = ora({
-                text:"Extracting depth 1 with 0 transactions",
+            // spinner widget for logs 
+            
+            let spinnerDepth = ora({
+                text:"Extracting depth "+depth,
                 stream: process.stdout
             }).start();
             spinnerDepth.color = "blue";
@@ -105,48 +106,50 @@ function exec_input_transaction_graph(args) {
                 // get its neightbors (inputs here)
                 get_tx_inputs(depth_txhashes[depth-1][i]).then((neighbours)=>{
 
-                    // update spinner text
-                    spinnerDepth.text = "Extracting depth "+depth+" with "+txInputsFound+"/"+txInputsToFind+" transactions";
 
                     // id of the source tx (should always be set)
                     let sourceTxId = hashIdMap[depth_txhashes[depth-1][i]];
-                    // if no neighbours (only tx is coinbase?)
-                    if(neighbours.length==0) {
-                        // increase counter
-                        txInputsFound++;
-                        // if we are done finding neighbours for this tx
-                        if(txInputsFound>=txInputsToFind) {
-                            // iterate to next depth
-                            spinnerDepth.succeed();
-                            depthCallback();
-                            return;
-                        }
-                    }
+
                     // for each neighbours
                     for(let j=0;j<neighbours.length;j++) {
                         // if it's not already searched
+                        let new_tx = false;
                         if(txhashes.has(neighbours[j].hash)==false) {
                             // add it to hashes set
                             txhashes.add(neighbours[j].hash);
+                            new_tx = true;
                             // get it a new id
                             lastIdUsed++;
                             hashIdMap[neighbours[j].hash] = lastIdUsed;
-                            // define the type of node
-                            let group = "Pruned";
-                            // if max_degree is disabled or if we have reached it
-                            if(max_degree==0 || neighbours.length<=max_degree) {
-                                depth_txhashes[depth].push(neighbours[j].hash);
-                                group = "Neutral";
-                            }
-                            // if this is the last depth, the group is "End"
-                            if(depth+1>args.depth) {
-                                group = "End";
-                            }
-                            // write the node
-                            ioFunctions.writeNode(lastIdUsed,neighbours[j].hash, group);
                         }
-                        // write a new edge
-                        ioFunctions.writeEdge(hashIdMap[neighbours[j].hash], sourceTxId, neighbours[j].address, neighbours[j].value);
+                        // if this is the last depth, the group is "End"
+                        if((depth+1)>Number(args.depth)) {
+                            if(new_tx==true) {
+                                // write the node
+                                ioFunctions.writeNode(hashIdMap[neighbours[j].hash],neighbours[j].hash, "End");
+                            }
+                            // write a new edge
+                            ioFunctions.writeEdge(hashIdMap[neighbours[j].hash], sourceTxId, neighbours[j].address, neighbours[j].value);
+                        }
+                        // if max_degree is disabled or if we have not reached it
+                        else if(max_degree==0 || neighbours.length<=max_degree) {
+                            if(new_tx==true) {
+                                // write the node
+                                depth_txhashes[depth].push(neighbours[j].hash);
+                                // write the node
+                                ioFunctions.writeNode(hashIdMap[neighbours[j].hash],neighbours[j].hash, "Neutral");
+                            }
+                            // write a new edge
+                            ioFunctions.writeEdge(hashIdMap[neighbours[j].hash], sourceTxId, neighbours[j].address, neighbours[j].value);
+                        }
+                        // else, the node is prunned so we check if it should be dispalyed or not
+                        else if(args.hide_prunned==false) {
+                            if(new_tx==true) {
+                                // write the node
+                                ioFunctions.writeNode(hashIdMap[neighbours[j].hash],neighbours[j].hash, "Prunned");
+                            }
+                            ioFunctions.writeEdge(hashIdMap[neighbours[j].hash], sourceTxId, neighbours[j].address, neighbours[j].value);
+                        }
                     }
                     // increase counter
                     txInputsFound++;

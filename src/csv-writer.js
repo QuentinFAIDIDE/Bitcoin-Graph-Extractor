@@ -36,8 +36,10 @@ function initialize_graph_csvs(node_file, edge_file) {
                                 reject(errEx);
                                 return;
                             }
-                            start_webapp();
+                            start_webapp().then(resolve).catch(reject);
                         });
+                    } else {
+                        resolve();
                     }
                 });
             }

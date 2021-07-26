@@ -14,7 +14,7 @@ function start_webapp(node_file, edge_file) {
         // share the html/css/js folder
         app.use("/", express.static("html-viewer"));
 
-        let PORT = 51298;
+        let PORT = 51299;
 
         // start the server
         app.listen(PORT, () => {
@@ -25,6 +25,7 @@ function start_webapp(node_file, edge_file) {
         open("http://127.0.0.1:"+PORT);
 
         // this function will never resolve
+        resolve();
     });
 }
 
