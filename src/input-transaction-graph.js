@@ -76,22 +76,25 @@ function exec_input_transaction_graph(args) {
         let depthCallback = ()=>{
             depth++;
 
+            // if we are done, (max depth is our limit)
+            if(depth>args.depth) {
+                // end the csv streams
+                ioFunctions.doneWriting(args.webapp_view).then(()=>{
+                    process.exit(0);
+                }).catch((err)=>{
+                    console.error("Error while trying to copy csv and start webapp.");
+                    console.error(err);
+                    process.exit(1);
+                });
+                return;
+            }
+
             // spinner widget for logs
             const spinnerDepth = ora({
                 text:"Extracting depth 1 with 0 transactions",
                 stream: process.stdout
             }).start();
             spinnerDepth.color = "blue";
-
-            // if we are done, (max depth is our limit)
-            if(depth>args.depth) {
-                // end the csv streams
-                ioFunctions.doneWriting();
-                spinnerDepth.succeed();
-                // and exit the program
-                console.log("The transactions have been written.");
-                process.exit(0);
-            }
 
             let txInputsFound = 0;
             let txInputsToFind = depth_txhashes[depth-1].length;

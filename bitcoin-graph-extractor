@@ -23,6 +23,7 @@ input_transaction_graph.add_argument("-m", "--max-degree", { help: "Do not searc
 input_transaction_graph.add_argument("-n", "--node-output", { help: "File to dump the nodes in.", default: "exported_nodes.csv"});
 input_transaction_graph.add_argument("-e", "--edge-output", { help: "File to dump the edges in.", default: "exported_edges.csv"});
 input_transaction_graph.add_argument("-p", "--password", { help: "BTC RPC API Password.", required: true});
+input_transaction_graph.add_argument("-w", "--webapp-view", { help: "Deploy a graph visualization webapp on local host and open in browser", action:"store_true"});
 input_transaction_graph.set_defaults({func: exec_input_transaction_graph});
 
 // display the arguments parsed

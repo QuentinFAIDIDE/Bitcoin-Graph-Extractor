@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<!-- saved from url=(0044)http://kenedict.com/networks/worldcup14/vis/ , thanks Andre!-->
+<html lang="en">
+
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=UTF8" />
+  <title>Vis Network | Example Applications | World Cup Network</title>
+
+  <link rel="stylesheet" type="text/css"
+    href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Roboto+Slab:400,700|Material+Icons">
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis-network.min.js"></script>
+
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.1/papaparse.min.js"></script>
+
+  <script src="loadDataset.js"></script>
+
+  <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+
+<body>
+
+  <div class="main">
+
+    <div class="topbar">
+
+      <div class="topbar-center">
+        <div class="inline-container">
+          <div class="inline-left" style="height: 70px;">
+            <div class="logo">
+              <img src="01.svg" style="height: 60px;top: 5px;position: relative;">
+            </div>
+          </div>
+          <div class="inline-right" style="width: 170px;">
+            <a class="github-link" href="https://github.com/QuentinFAIDIDE/Bitcoin-Graph-Extractor">
+              <div class="inline-container">
+                <div class="inline-left">
+                  <div class="github">
+                    <img src="github.svg">
+                  </div>
+                </div>
+                <div class="inline-right">
+                  <h3 style="margin: 0 auto;text-align: right;top: -4px;position: relative;">Open on Github</h3>
+                </div>
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="page">
+      <div class="card-content">
+        <div class="card-header">
+          <h3 style="font-weight: 400;color:transparent; margin-bottom:2px;margin-top:0px;">Transaction Graph</h3>
+        </div>
+          <div class="card">
+            <div class="graph-area">
+              <div id="mynetwork"></div>
+            </div>
+          </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    var network;
+
+    function redrawAll() {
+      // remove positoins
+      for (var i = 0; i < nodes.length; i++) {
+        delete nodes[i].x;
+        delete nodes[i].y;
+      }
+
+      // create a network
+      var container = document.getElementById("mynetwork");
+      var data = {
+        nodes: nodes,
+        edges: edges,
+      };
+      var options = {
+        nodes: {
+          shape: "dot",
+          scaling: {
+            min: 10,
+            max: 30,
+          },
+          font: {
+            size: 12,
+            face: "Tahoma",
+          },
+        },
+        edges: {
+          width: 0.15,
+          color: { inherit: "from" },
+          smooth: {
+            type: "continuous",
+          },
+        },
+        physics: {
+          stabilization: false,
+          barnesHut: {
+            gravitationalConstant: -80000,
+            springConstant: 0.001,
+            springLength: 200,
+          },
+        },
+        interaction: {
+          tooltipDelay: 200,
+          hideEdgesOnDrag: true,
+        },
+      };
+
+      // Note: data is coming from ./datasources/WorldCup2014.js
+      network = new vis.Network(container, data, options);
+    }
+
+    let started = false;
+    let checkDataReady = setInterval(() => {
+      if (started == false && nodes_ready == true && edges_ready == true) {
+        started = true;
+        redrawAll();
+        clearInterval(checkDataReady);
+      }
+    }, 1000);
+
+  </script>
+</body>
+
+</html>

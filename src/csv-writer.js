@@ -1,5 +1,7 @@
 const fs = require("fs");
 const { format } = require("@fast-csv/format");
+const { start_webapp } = require("./webapp-view");
+const { exec } = require("child_process");
 
 function initialize_graph_csvs(node_file, edge_file) {
     return new Promise((resolve,reject)=>{
@@ -24,9 +26,20 @@ function initialize_graph_csvs(node_file, edge_file) {
             "writeEdge": (source, target, label, weight)=>{
                 edgeStream.write([source, target, label, weight]);
             },
-            "doneWriting": ()=>{
-                nodeStream.end();
-                edgeStream.end();
+            "doneWriting": (use_webapp)=>{
+                return new Promise((resolve,reject)=>{
+                    nodeStream.end();
+                    edgeStream.end();
+                    if(use_webapp==true) {
+                        exec("cp "+node_file+" html-viewer/exported_nodes.csv && cp "+edge_file+" html-viewer/exported_edges.csv", (errEx, stdOEx, stdEEx)=>{
+                            if(errEx) {
+                                reject(errEx);
+                                return;
+                            }
+                            start_webapp();
+                        });
+                    }
+                });
             }
         });
     });
