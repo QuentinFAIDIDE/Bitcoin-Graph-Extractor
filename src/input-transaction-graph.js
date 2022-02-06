@@ -90,13 +90,12 @@ function exec_input_transaction_graph(args) {
             }
 
             // spinner widget for logs 
-            
             let spinnerDepth = ora({
                 text:"Extracting depth "+depth,
                 stream: process.stdout
             }).start();
             spinnerDepth.color = "blue";
-
+    
             let txInputsFound = 0;
             let txInputsToFind = depth_txhashes[depth-1].length;
             depth_txhashes[depth] = [];
@@ -105,7 +104,6 @@ function exec_input_transaction_graph(args) {
             for(let i=0;i<depth_txhashes[depth-1].length;i++) {
                 // get its neightbors (inputs here)
                 get_tx_inputs(depth_txhashes[depth-1][i]).then((neighbours)=>{
-
 
                     // id of the source tx (should always be set)
                     let sourceTxId = hashIdMap[depth_txhashes[depth-1][i]];

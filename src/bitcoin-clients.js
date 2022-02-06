@@ -83,7 +83,6 @@ function get_and_cache_tx(hash) {
             headers: {"content-type": "text/plain;"},
             body: dataString
         };
-
         request(options, (error, response, body)=>{
 
             // if errors, exit and print it
@@ -191,9 +190,19 @@ function get_tx(tx_hash, nout=null) {
             // if nout is set
             } else {
                 // return the output value and address
+                let address;
+                // adapt to the rpc api format of the newer btc client versions
+                if(typeof tx_cache[tx_hash].vout[nout].scriptPubKey.address != "undefined") {
+                    address = tx_cache[tx_hash].vout[nout].scriptPubKey.address;
+                } else if(typeof tx_cache[tx_hash].vout[nout].scriptPubKey.addresses != "undefined") {
+                    console.log(address = tx_cache[tx_hash].vout[nout].scriptPubKey);
+                    address = tx_cache[tx_hash].vout[nout].scriptPubKey.addresses[0];
+                } else {
+                    console.error("A transaction had output we couldn't read:\n"+tx_cache[tx_hash].vout[nout]);
+                }
                 resolve({
                     "value": tx_cache[tx_hash].vout[nout].value,
-                    "address": tx_cache[tx_hash].vout[nout].scriptPubKey.addresses[0]
+                    "address": address
                 });
                 return;
             }
@@ -210,10 +219,20 @@ function get_tx(tx_hash, nout=null) {
                     return;
                 // if nout is set
                 } else {
+                    let address;
+                    // adapt to the rpc api format of the newer btc client versions
+                    if(typeof tx_cache[tx_hash].vout[nout].scriptPubKey.address != "undefined") {
+                        address = tx_cache[tx_hash].vout[nout].scriptPubKey.address;
+                    } else if(typeof tx_cache[tx_hash].vout[nout].scriptPubKey.addresses != "undefined") {
+                        console.log(address = tx_cache[tx_hash].vout[nout].scriptPubKey);
+                        address = tx_cache[tx_hash].vout[nout].scriptPubKey.addresses[0];
+                    } else {
+                        console.error("A transaction had output we couldn't read:\n"+tx_cache[tx_hash].vout[nout]);
+                    }
                     // return the output value and address
                     resolve({
                         "value":tx_cache[tx_hash].vout[nout].value,
-                        "address": tx_cache[tx_hash].vout[nout].scriptPubKey.addresses[0]
+                        "address": address
                     });
                     return;
                 }
